@@ -10,11 +10,5 @@ namespace ProjectApi.Data
         }
         public DbSet<Report> Reports { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<User> Admins { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfiguration(new AdminsSeeder());
-        }
     }
 }
