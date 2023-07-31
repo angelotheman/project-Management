@@ -10,7 +10,7 @@ namespace ProjectApi.Data
         }
         public DbSet<Report> Reports { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<Users> Admins { get; set; }
+        public DbSet<User> Admins { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
