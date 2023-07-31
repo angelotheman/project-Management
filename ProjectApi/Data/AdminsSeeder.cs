@@ -4,13 +4,13 @@ using ProjectApi.Models;
 
 namespace ProjectApi.Data
 {
-    public class AdminsSeeder : IEntityTypeConfiguration<Users>
+    public class AdminsSeeder : IEntityTypeConfiguration<User>
     {
-        public void Configure(EntityTypeBuilder<Users> builder)
+        public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.HasData(
-                new Users { Id = 1, Username = "angelotheman", Password = "facilityManager"},
-                new Users { Id = 2, Username = "arloo", Password = "estateManager"}
+                new User { Id = 1, Username = "angelotheman", Password = "facilityManager"},
+                new User { Id = 2, Username = "arloo", Password = "estateManager"}
             );
         }
     }
