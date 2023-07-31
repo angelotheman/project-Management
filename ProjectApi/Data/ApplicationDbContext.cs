@@ -10,7 +10,7 @@ namespace ProjectApi.Data
         }
         public DbSet<Report> Reports { get; set; }
         public DbSet<User> Users { get; set; }
-        public List<ManualUser> ManualUsers { get; set; } = new List<ManualUser>
+        public List<ManualUser> PredefinedUsers { get; set; } = new List<ManualUser>
         {
             new ManualUser { Username = "facilitymanager", Password = "facility001"},
             new ManualUser { Username = "estatemanager", Password = "estate001"}
