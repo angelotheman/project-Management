@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using ProjectApi.Data;
@@ -27,11 +28,8 @@ namespace ProjectApi.Controllers
                 return BadRequest("Invalid report data.");
             }
 
-            // Check if user is authenticated
-            bool isAuthenticated = HttpContext.User.Identity.IsAuthenticated;
-
             // Assign the UserId based on authentication status
-            int userId = isAuthenticated ? GetAuthenticatedUserId() : -1; // Or any default value I choose for the user
+            int userId = IsUserAuthenticated() ? GetAuthenticatedUserId() : -1; // Or any default value I choose for the user
 
             // Map the ReportDTO to the Report model
             var report = new Report
@@ -49,6 +47,12 @@ namespace ProjectApi.Controllers
             _db.SaveChanges();
 
             return CreatedAtAction(nameof(GetReportByIssueId), new { issueId = report.IssueId }, report);
+        }
+
+        // Method to determine if user is authenticated
+        private bool IsUserAuthenticated()
+        {
+            return HttpContext.User.Identity?.IsAuthenticated ?? false;
         }
 
         // Helper method to retrieve the userId from claims
@@ -77,6 +81,26 @@ namespace ProjectApi.Controllers
             }
 
             return Ok(report);
+        }
+
+        // GET: api/ReportsApi/dashboard
+        [HttpGet("dashboard")]
+        [Authorize] // This requires authentication to access dashboard
+        public IActionResult Dashboard()
+        {
+            int authenticatedUserId = GetAuthenticatedUserId();
+            var userReports = _db.Reports.Where(r => r.UserId == authenticatedUserId).ToList();
+
+            // Returning a list of report summaries for the user's dashboard
+            var reportSummaries = userReports.Select(r => new
+            {
+                r.IssueId,
+                CustomerName = $"{r.User.FirstName} {r.User.LastName}", // Customer Name
+                r.Created_At,
+                r.FaultStatus
+            }).ToList();
+
+            return Ok(reportSummaries);
         }
     }
 }
