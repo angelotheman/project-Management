@@ -18,8 +18,8 @@ namespace ProjectApi.Controllers
             _db = db;
         }
 
-        // POST: api/ReportsApi
-        [HttpPost]
+        // POST: api/ReportsApi/addReport
+        [HttpPost("addReport")]
         public IActionResult CreateReport([FromBody] ReportInputDTO reportInput)
         {
             if(reportInput == null)
