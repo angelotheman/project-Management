@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using ProjectApi.Data;
 using ProjectApi.Models;
@@ -17,27 +19,63 @@ namespace ProjectApi.Controllers
             _db = db;
         }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<Report>> GetReports()
+        // POST: api/ReportsApi
+        [HttpPost]
+        public IActionResult CreateReport([FromBody] ReportInputDTO reportInput)
         {
-            return Ok(_db.Reports.ToList());
+            if(reportInput == null)
+            {
+                return BadRequest("Invalid report data.");
+            }
+
+            // Assign the UserId based on authentication status
+            int userId = IsUserAuthenticated() ? GetAuthenticatedUserId() : -1; // Or any default value I choose for the user
+
+            // Map the ReportDTO to the Report model
+            var report = new Report
+            {
+                FaultDescription = reportInput.FaultDescription,
+                ImageUrl = reportInput.ImageUrl,
+                FaultCategory = reportInput.FaultCategory,
+                Location = reportInput.Location,
+                FaultStatus = Status.Pending, // Setting the current state to pending
+                Created_At = DateTime.UtcNow, // Setting the current date to now
+                UserId = userId // Using the retrieved userId or default
+            };
+
+            // Save the report to database
+            _db.SaveChanges();
+
+            return CreatedAtAction(nameof(GetReportByIssueId), new { issueId = report.IssueId }, report);
         }
 
-        [HttpGet("{id: int}", Name = "GetReport")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<Report> GetReport(int id)
+        // Method to determine if user is authenticated
+        private bool IsUserAuthenticated()
         {
-            if (id == 0)
+            return HttpContext.User.Identity?.IsAuthenticated ?? false;
+        }
+
+        // Helper method to retrieve the userId from claims
+        private int GetAuthenticatedUserId()
+        {
+            var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
             {
-                return BadRequest();
+                return userId;
             }
-            
-            var report = _db.Reports.FirstOrDefault(x => x.Id == id);
-            
-            if (report == null)
+
+            return -1;
+        }
+
+        // GET: api/ReportsApi/{issueid}
+        [HttpGet("{issueId}")]
+        public IActionResult GetReportByIssueId(string issueId)
+        {
+            // Retrieve the report by its IssueId
+            var report = _db.Reports.FirstOrDefault(x =>  x.IssueId == issueId);
+
+            if (report != null)
             {
                 return NotFound();
             }
@@ -45,83 +83,24 @@ namespace ProjectApi.Controllers
             return Ok(report);
         }
 
-        [HttpPost]
-        public ActionResult<Report> CreateReport([FromBody]Report reportDTO)
+        // GET: api/ReportsApi/dashboard
+        [HttpGet("dashboard")]
+        [Authorize] // This requires authentication to access dashboard
+        public IActionResult Dashboard()
         {
-            if (reportDTO == null || !ModelState.IsValid)
+            int authenticatedUserId = GetAuthenticatedUserId();
+            var userReports = _db.Reports.Where(r => r.UserId == authenticatedUserId).ToList();
+
+            // Returning a list of report summaries for the user's dashboard
+            var reportSummaries = userReports.Select(r => new
             {
-                return BadRequest("The data is missing or invalid");
-            }
-            if (reportDTO.Id > 0)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+                r.IssueId,
+                CustomerName = $"{r.User.FirstName} {r.User.LastName}", // Customer Name
+                r.Created_At,
+                r.FaultStatus
+            }).ToList();
 
-            _db.Reports.Add(reportDTO);
-            _db.SaveChanges();
-
-            return CreatedAtRoute("GetReport", new {id = reportDTO.Id}, reportDTO);
-        }
-
-        [HttpDelete("{id: int}", Name = "DeleteReport")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult DeleteReport(int id)
-        {
-            if (id == 0)
-            {
-                return BadRequest();
-            }
-
-            var report = _db.Reports.FirstOrDefault(p => p.Id == id);
-            if (report == null)
-            {
-                return NotFound();
-            }
-            _db.Reports.Remove(report);
-            _db.SaveChanges();
-            
-            return NoContent();
-        }
-
-        [HttpPut("{id: int}", Name = "UpdateReportPut")]
-        public IActionResult UpdateReport(int id, [FromBody]Report reportDTO)
-        {
-            if (reportDTO == null || reportDTO.Id != id)
-            {
-                return BadRequest("Invalid data or ID in the request");
-            }
-            _db.Reports.Update(reportDTO);
-            _db.SaveChanges();
-
-            return NoContent();
-
-        }
-
-        [HttpPatch("{id: int}", Name = "UpdateReportPatch")]
-        public IActionResult UpdatePartialReport(int id, JsonPatchDocument<Report> reportDTO)
-        {
-            if (reportDTO == null || id == 0)
-            {
-                return BadRequest();
-            }
-
-            var report = _db.Reports.FirstOrDefault(p => p.Id == id);
-            if (report == null)
-            {
-                return BadRequest();
-            }
-
-            reportDTO.ApplyTo(report, ModelState);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            _db.Reports.Update(report);
-            _db.SaveChanges();
-            return NoContent();
+            return Ok(reportSummaries);
         }
     }
 }
