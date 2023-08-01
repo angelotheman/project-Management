@@ -74,7 +74,7 @@ namespace ProjectApi.Controllers
             // Retrieve the report by its IssueId
             var report = _db.Reports.FirstOrDefault(x =>  x.IssueId == issueId);
 
-            if (report != null)
+            if (report == null)
             {
                 return NotFound();
             }
