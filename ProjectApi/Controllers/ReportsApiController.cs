@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using ProjectApi.Data;
 using ProjectApi.Models;
@@ -19,8 +18,8 @@ namespace ProjectApi.Controllers
             _db = db;
         }
 
-        // POST: api/ReportsApi
-        [HttpPost]
+        // POST: api/ReportsApi/addReport
+        [HttpPost("addReport")]
         public IActionResult CreateReport([FromBody] ReportInputDTO reportInput)
         {
             if(reportInput == null)
@@ -75,7 +74,7 @@ namespace ProjectApi.Controllers
             // Retrieve the report by its IssueId
             var report = _db.Reports.FirstOrDefault(x =>  x.IssueId == issueId);
 
-            if (report != null)
+            if (report == null)
             {
                 return NotFound();
             }
