@@ -1,7 +1,10 @@
-﻿namespace ProjectApi.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ProjectApi.Models
 {
     public class ReportImage
     {
+        [Key]
         public int ReportImageId { get; set; }
         public string ImageUrl { get; set; }
 

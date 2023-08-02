@@ -1,20 +1,15 @@
-﻿namespace ProjectApi.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ProjectApi.Models
 {
     public class Report
     {
+        [Key]
         public int ReportId { get; set; }
-        public string IssueId { get; private set; } // Unique ID for tracking the report
+        public string IssueId { get;  set; } // Unique ID for tracking the report
         public string FaultDescription { get; set; }
         public DateTime Created_At { get; set; }
         public string Location { get; set; }
-
-        
-        /* Has one to many relationship with User, Category
-         * Has many relationship with Status. This is defined in the constructor and ICollection class
-         */
-
-        public int UserId { get; set; }
-        public User User { get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; }
         public ICollection<Status> Status { get; set; }
