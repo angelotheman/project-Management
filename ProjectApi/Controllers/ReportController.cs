@@ -9,15 +9,16 @@ namespace ProjectApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ReportsApiController : ControllerBase
+    public class ReportController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
 
-        public ReportsApiController(ApplicationDbContext db)
+        public ReportController(ApplicationDbContext db)
         {
             _db = db;
         }
 
+        /**
         // POST: api/ReportsApi/addReport
         [HttpPost("addReport")]
         public IActionResult CreateReport([FromBody] ReportInputDTO reportInput)
@@ -28,9 +29,10 @@ namespace ProjectApi.Controllers
             }
 
             // Assign the UserId based on authentication status
-            int userId = IsUserAuthenticated() ? GetAuthenticatedUserId() : -1; // Or any default value I choose for the user
+            // int userId = IsUserAuthenticated() ? GetAuthenticatedUserId() : -1; // Or any default value I choose for the user
 
             // Map the ReportDTO to the Report model
+            /**
             var report = new Report
             {
                 FaultDescription = reportInput.FaultDescription,
@@ -41,14 +43,15 @@ namespace ProjectApi.Controllers
                 Created_At = DateTime.UtcNow, // Setting the current date to now
                 UserId = userId // Using the retrieved userId or default
             };
-
+            
+        _db.Reports
             // Save the report to database
             _db.SaveChanges();
 
             return CreatedAtAction(nameof(GetReportByIssueId), new { issueId = report.IssueId }, report);
-        }
+        } */
 
-        // Method to determine if user is authenticated
+        /* Method to determine if user is authenticated
         private bool IsUserAuthenticated()
         {
             return HttpContext.User.Identity?.IsAuthenticated ?? false;
@@ -100,6 +103,34 @@ namespace ProjectApi.Controllers
             }).ToList();
 
             return Ok(reportSummaries);
+        }
+    }
+
+    /**
+     * Great an action method (endpoint) for getting all categories.
+     * This category would be a list (select list) of Id's and their names*/
+
+        [HttpPost]
+        public IActionResult CreateReport([FromBody] ReportInputDTO reportInput)
+        {
+            if (reportInput == null)
+            {
+                return BadRequest("Invalid Data");
+            }
+
+            var report = new Report
+            {
+                IssueId = "asdfaiwefwefsd",
+                FaultDescription = reportInput.FaultDescription,
+                CategoryId = reportInput.CategoryId,
+                Location = reportInput.Location,
+                Created_At = DateTime.UtcNow, // Setting the current date to now
+            };
+
+            _db.Report.Add(report);
+            _db.SaveChanges();
+
+            return Ok(report);
         }
     }
 }

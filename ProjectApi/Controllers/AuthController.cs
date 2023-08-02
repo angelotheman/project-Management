@@ -22,7 +22,7 @@ namespace ProjectApi.Controllers
             _db = db;
         }
 
-
+        /**
         [HttpPost("login")]
         public IActionResult Login(LoginInputDTO loginDetails)
         {
@@ -39,7 +39,7 @@ namespace ProjectApi.Controllers
             }
 
             return Unauthorized("Invalid credentials");
-        }
+        } 
 
         // Method to generate JWT Token
         private string GenerateJwtToken(string username)
@@ -64,6 +64,6 @@ namespace ProjectApi.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
-        }
+        }*/
     }
 }

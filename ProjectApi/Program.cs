@@ -1,9 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectApi.Data;
+using ProjectApi.Profiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
+builder.Services.AddAutoMapper(config => 
+    config.AddProfile(typeof(MappingProfile))
+);
 
 builder.Services.AddControllers(option => {
     //option.ReturnHttpNotAcceptable=true;

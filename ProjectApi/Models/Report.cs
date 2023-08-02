@@ -1,23 +1,24 @@
-﻿namespace ProjectApi.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ProjectApi.Models
 {
     public class Report
     {
-        public int Id { get; set; }
-        public string IssueId { get; private set; } // Unique ID for tracking the report
+        [Key]
+        public int ReportId { get; set; }
+        public string IssueId { get;  set; } // Unique ID for tracking the report
         public string FaultDescription { get; set; }
-        public string ImageUrl { get; set; }
-        public Category FaultCategory { get; set; }
-        public Status FaultStatus { get; set; }
         public DateTime Created_At { get; set; }
         public string Location { get; set; }
-
-        // Foreign key to link Report to the User who submitted it
-        public int UserId { get; set; }
-        public User User { get; set; }
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
+        public ICollection<Status> Status { get; set; }
+        public ICollection<ReportImage> ReportImage { get; set; }
 
         // This constructor generates a unique key for every report that is instantiated
         public Report()
         {
+            this.Status = new HashSet<Status>();
             IssueId = GenerateUniqueIssue();
         }
 
@@ -36,22 +37,5 @@
             return new string(Enumerable.Repeat(alphanumericChars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
-    }
-
-    public enum Category
-    {
-        AirCondition,
-        Plumbing,
-        Carpentry,
-        Electricals,
-        Building,
-        Materials
-    }
-
-    public enum Status
-    {
-        Pending,
-        InProgress,
-        Completed
     }
 }
