@@ -5,9 +5,7 @@ using ProjectApi.Profiles;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddAutoMapper(config => 
-    config.AddProfile(typeof(MappingProfile))
-);
+builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddControllers(option => {
     //option.ReturnHttpNotAcceptable=true;
