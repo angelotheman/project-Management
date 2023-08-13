@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectApi.Data;
 
@@ -11,9 +12,11 @@ using ProjectApi.Data;
 namespace ProjectApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230804152631_IMapper")]
+    partial class IMapper
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,38 +40,6 @@ namespace ProjectApi.Migrations
                     b.HasKey("CategoryId");
 
                     b.ToTable("Category");
-
-                    b.HasData(
-                        new
-                        {
-                            CategoryId = 1,
-                            Name = "AirCondition"
-                        },
-                        new
-                        {
-                            CategoryId = 2,
-                            Name = "Plumbing"
-                        },
-                        new
-                        {
-                            CategoryId = 3,
-                            Name = "Electricals"
-                        },
-                        new
-                        {
-                            CategoryId = 4,
-                            Name = "Building"
-                        },
-                        new
-                        {
-                            CategoryId = 5,
-                            Name = "Capentry"
-                        },
-                        new
-                        {
-                            CategoryId = 6,
-                            Name = "Materials"
-                        });
                 });
 
             modelBuilder.Entity("ProjectApi.Models.Report", b =>
