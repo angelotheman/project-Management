@@ -11,7 +11,7 @@ namespace ProjectApi.Models
         public DateTime Created_At { get; set; }
         public string Location { get; set; }
         public int? CategoryId { get; set; }
-        public Category Category { get; set; }
+        public Category? Category { get; set; }
         public ICollection<Status> Status { get; set; }
         public ICollection<ReportImage> ReportImage { get; set; }
 

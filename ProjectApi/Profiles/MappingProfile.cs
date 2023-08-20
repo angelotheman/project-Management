@@ -8,7 +8,6 @@ namespace ProjectApi.Profiles
     {
         public MappingProfile()
         {
-
             CreateMap<ReportInputDTO, Report>();
         }
     }
