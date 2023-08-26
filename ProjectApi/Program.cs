@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using ProjectApi.Data;
-using ProjectApi.Profiles;
+using ProjectApi.Models.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Configure the DbContext to use the connection string from appsettings.json
-builder.Services.AddDbContext<ApplicationDbContext>(option =>
+builder.Services.AddDbContext<ProjectDatabaseContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("SQLCONNECTION")));
 
 var app = builder.Build();
