@@ -1,10 +1,7 @@
-﻿using System.Security.Claims;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using ProjectApi.Data;
-using ProjectApi.Models;
 using ProjectApi.Models.DTO;
+using ProjectApi.Models.Entities;
 
 namespace ProjectApi.Controllers
 {
@@ -12,48 +9,51 @@ namespace ProjectApi.Controllers
     [ApiController]
     public class ReportController : ControllerBase
     {
-        private readonly ApplicationDbContext _db;
-        private readonly IMapper _mapper;
-
-        public ReportController(ApplicationDbContext db, IMapper mapper)
+        private readonly ProjectDatabaseContext _db;
+        private readonly IMapper  _mapper;
+        public ReportController(ProjectDatabaseContext db, IMapper mapper)
         {
             _db = db;
             _mapper = mapper;
         }
 
-        // POST : api/ReportApi/addReport
-        [HttpPost("addReport")]
-        public IActionResult CreateReport([FromBody] ReportInputDTO reportInput)
+        // GET: api/<ReportController>
+        [HttpGet]
+        public IActionResult GetAllReports()
         {
-            if (reportInput == null)
-            {
-                return BadRequest("Invalid Data");
-            }
-
-            // Map ReportInputDTO with automapper
-            var report = _mapper.Map<ReportInputDTO, Report>(reportInput);
-
-            // Generate IssueID and set current Date
-            report.IssueId = GenerateUniqueIssue();
-
-            // Set the category of the report
-            var category = _db.Category.Find(reportInput.CategoryId);
-
-            // Set the category of the report
-            report.Category = category;
-
-            _db.Report.Add(report);
-            _db.SaveChanges();
-
-            return Ok(report);
+            var reports = _db.Reports.ToList();
+            var reportsDTO = _mapper.Map<List<ReportDTO>>(reports);
+            return Ok(reportsDTO);
         }
 
+        // GET api/<ReportController>/5
+        [HttpGet("{id}")]
+        public IActionResult GetReportById(int id)
+        {
+            var report = _db.Reports.SingleOrDefault(x => x.ReportId == id);
+            var reportDTO = _mapper.Map<ReportDTO>(report);
+
+
+            return Ok(reportDTO);
+        }
+
+        // GET /api/<ReportController>/{issueid}
+        [HttpGet("{issueId}")]
+        public IActionResult GetReportByIssueId(string issueId)
+        {
+            var report = _db.Reports.SingleOrDefault(x => x.IssueId == issueId);
+            var reportDTO = _mapper.Map<ReportDTO>(report);
+
+            return Ok(reportDTO);
+        }
+
+        // Generate IssueId automatically
         private string GenerateUniqueIssue()
         {
             int issueIdLength = 7;
             string issueId = $"REPORT-{GenerateRandomAlphanumericString(issueIdLength)}";
 
-            while (_db.Report.Any(x => x.IssueId == issueId))
+            while (_db.Reports.Any(x => x.IssueId == issueId))
             {
                 issueId = $"REPORT-{GenerateRandomAlphanumericString(issueIdLength)}";
             }
@@ -61,43 +61,51 @@ namespace ProjectApi.Controllers
             return issueId;
         }
 
-
-
-        // This code generates the random characters from the alphanumeric table
         private string GenerateRandomAlphanumericString(int length)
         {
             const string alphanumericChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
             var random = new Random();
+
             return new string(Enumerable.Repeat(alphanumericChars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        // GET : api/ReportApi/{issueId}
-        [HttpGet("{issueId}")]
-        public IActionResult GetReportByIssueId(string issueId)
+        // POST api/<ReportController>
+        [HttpPost]
+        public IActionResult CreateReport([FromBody] CreateReportDTO createReportDTO)
         {
-            // Retrieve the report by its IssueId
-            var report = _db.Report.FirstOrDefault(x => x.IssueId == issueId);
+            var report = _mapper.Map<Report>(createReportDTO);
+            report.IssueId = GenerateUniqueIssue();
+            report.IsDeleted = false;
+            report.CreatedAt = DateTime.UtcNow;
+            report.CreatedBy = "Admin";
+            report.UpdatedAt = DateTime.UtcNow;
+            report.UpdatedBy = "Admin";
 
-            if (report == null)
-            {
-                return NotFound();
-            }
+            /* Report Image object
+            var reportImage = new ReportImage();
+            reportImage.ReportId = report.ReportId;
+            reportImage.ImageName = 
+            */
 
-            return Ok(report);
+            _db.Reports.Add(report);
+            _db.SaveChanges();
+
+            var reportDTO = _mapper.Map<ReportDTO>(report);
+            return Ok(reportDTO);
         }
-        /**
-          * Great an action method (endpoint) for getting all categories.
-          * This category would be a list (select list) of Id's and their names
-          fid efdsiwie the LORD is my shepherd I shall not want
-        */
-        
-        // GET : api/ReportApi/categories
-        [HttpGet("Categories")]
-        public IActionResult GetCategories()
+
+        // PUT api/<ReportController>/5
+        [HttpPut("{id}")]
+        public void Put(int id, [FromBody] string value)
         {
-            var categories = _db.Category.ToList();
-            return Ok(categories);
+        }
+
+        // DELETE api/<ReportController>/5
+        [HttpDelete("{id}")]
+        public void Delete(int id)
+        {
         }
     }
 }
