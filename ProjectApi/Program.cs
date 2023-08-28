@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectApi.Data;
+using ProjectApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,8 @@ builder.Services.AddSwaggerGen();
 // Configure the DbContext to use the connection string from appsettings.json
 builder.Services.AddDbContext<ProjectDatabaseContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("SQLCONNECTION")));
+
+builder.Services.AddTransient<IManageImage, ManageImage>();
 
 var app = builder.Build();
 

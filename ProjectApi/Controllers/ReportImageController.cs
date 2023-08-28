@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectApi.Data;
 using ProjectApi.Models.DTO;
 using ProjectApi.Models.Entities;
+using ProjectApi.Services;
 
 namespace ProjectApi.Controllers
 {
@@ -12,11 +13,13 @@ namespace ProjectApi.Controllers
     {
         private readonly ProjectDatabaseContext _db;
         private readonly IMapper _mapper;
+        private readonly IManageImage _iManageImage;
 
-        public ReportImageController(ProjectDatabaseContext db, IMapper mapper)
+        public ReportImageController(ProjectDatabaseContext db, IMapper mapper, IManageImage iManageImage)
         {
             _db = db;
             _mapper = mapper;
+            _iManageImage = iManageImage;
         }
         
         // GET: api/<ReportImageController>
@@ -39,21 +42,21 @@ namespace ProjectApi.Controllers
             return Ok(imageDTO);
         }
 
-        // POST api/<ReportImageController>
-        [HttpPost("addImage")]
-        public IActionResult AddImage([FromBody] CreateReportImageDTO reportImageDTO)
+        [HttpGet]
+        [Route("downloadfile")]
+        public async Task<IActionResult> DownloadFile(string FileName)
         {
-            var reportImage = _mapper.Map<ReportImage>(reportImageDTO);
-            reportImage.CreatedAt = DateTime.Now;
-            reportImage.CreatedBy = "Admin";
-            reportImage.IsDeleted = false;
-            reportImage.UpdatedAt = DateTime.Now;
-            reportImage.UpdatedBy = "Admin";
+            var result = await _iManageImage.DownloadFile(FileName);
+            return File(result.Item1, result.Item2, result.Item2);
+        }
 
-            _db.ReportImages.Add(reportImage);
-            _db.SaveChanges();
-
-            return Ok(reportImage);
+        // POST api/<ReportImageController>
+        [HttpPost]
+        [Route("uploadfile")]
+        public async Task<IActionResult> UploadFile(IFormFile _IFormFile)
+        {
+            var result = await _iManageImage.UploadFile(_IFormFile);
+            return Ok(result);
         }
 
         // PUT api/<ReportImageController>/5
