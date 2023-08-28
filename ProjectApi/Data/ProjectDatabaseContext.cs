@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using ProjectApi.Models.Entities;
 
-namespace ProjectApi.Models.Entities;
+namespace ProjectApi.Data;
 
 public partial class ProjectDatabaseContext : DbContext
 {

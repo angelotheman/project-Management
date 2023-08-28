@@ -14,9 +14,9 @@ namespace ProjectApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly ApplicationDbContext _db;
+        private readonly ProjectDatabaseContext _db;
 
-        public AuthController(IConfiguration configuration, ApplicationDbContext db)
+        public AuthController(IConfiguration configuration, ProjectDatabaseContext db)
         {
             _configuration = configuration;
             _db = db;
