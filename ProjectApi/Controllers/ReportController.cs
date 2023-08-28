@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using ProjectApi.Data;
 using ProjectApi.Models.DTO;
 using ProjectApi.Models.Entities;
 
