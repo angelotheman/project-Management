@@ -34,10 +34,11 @@ namespace ProjectApi.Controllers
         {
             var category = _db.Categories.SingleOrDefault(c => c.CategoryId == categoryId);
 
+            /*
             if (category == null)
             {
                 return NotFound();
-            }
+            }*/
 
             var categoryDTO = _mapper.Map<CreateCategoryDTO>(category);
 
