@@ -27,7 +27,7 @@ namespace ProjectApi.Controllers
         }
 
         // GET api/<ReportController>/5
-        [HttpGet("{id}")]
+        [HttpGet("GetById/{id}")]
         public IActionResult GetReportById(int id)
         {
             var report = _db.Reports.SingleOrDefault(x => x.ReportId == id);
@@ -38,7 +38,7 @@ namespace ProjectApi.Controllers
         }
 
         // GET /api/<ReportController>/{issueid}
-        [HttpGet("{issueId}")]
+        [HttpGet("GetByIssueId/{issueId}")]
         public IActionResult GetReportByIssueId(string issueId)
         {
             var report = _db.Reports.SingleOrDefault(x => x.IssueId == issueId);
@@ -46,17 +46,18 @@ namespace ProjectApi.Controllers
 
             return Ok(reportDTO);
         }
-
+                
         // Generate IssueId automatically
         private string GenerateUniqueIssue()
         {
             int issueIdLength = 7;
             string issueId = $"REPORT-{GenerateRandomAlphanumericString(issueIdLength)}";
 
+            /**
             while (_db.Reports.Any(x => x.IssueId == issueId))
             {
                 issueId = $"REPORT-{GenerateRandomAlphanumericString(issueIdLength)}";
-            }
+            }*/
 
             return issueId;
         }
@@ -72,7 +73,7 @@ namespace ProjectApi.Controllers
         }
 
         // POST api/<ReportController>
-        [HttpPost]
+        [HttpPost("addReport")]
         public IActionResult CreateReport([FromBody] CreateReportDTO createReportDTO)
         {
             var report = _mapper.Map<Report>(createReportDTO);
@@ -83,17 +84,66 @@ namespace ProjectApi.Controllers
             report.UpdatedAt = DateTime.UtcNow;
             report.UpdatedBy = "Admin";
 
-            /* Report Image object
-            var reportImage = new ReportImage();
-            reportImage.ReportId = report.ReportId;
-            reportImage.ImageName = 
-            */
-
             _db.Reports.Add(report);
             _db.SaveChanges();
 
+            // Save Report Status
+            var reportStatus = new ReportStatus
+            {
+                ReportId = report.ReportId,
+                StatusId = 1,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = "Admin",
+                IsDeleted = false,
+                UpdatedAt = DateTime.UtcNow,
+                UpdatedBy = "Admin"
+            };
+
+            _db.ReportStatuses.Add(reportStatus);
+            _db.SaveChanges();
+
+            // Report Image Object
+            var reportImage = new ReportImage
+            {
+                ReportId = report.ReportId,
+                ImageName = createReportDTO.Image.ImageName,
+                ImageUrl = createReportDTO.Image.ImageUrl,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = "Admin",
+                IsDeleted = false,
+                UpdatedAt = DateTime.UtcNow,
+                UpdatedBy = "Admin"
+            };
+
+            _db.ReportImages.Add(reportImage);
+            _db.SaveChanges();
+            
+
             var reportDTO = _mapper.Map<ReportDTO>(report);
             return Ok(reportDTO);
+        }
+
+        // UPDATE status
+        [HttpPost("addReportStatus")]
+
+        public IActionResult UpdateReportStatus([FromBody] ReportStatusDTO reportStatusDTO)
+        {
+
+            var reportStatus = new ReportStatus
+            {
+                ReportId = reportStatusDTO.ReportId,
+                StatusId = reportStatusDTO.StatusId,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = "Admin",
+                IsDeleted = false,
+                UpdatedAt = DateTime.UtcNow,
+                UpdatedBy = "Admin"
+            };
+
+            _db.ReportStatuses.Add(reportStatus);
+            _db.SaveChanges();
+
+            return Ok("Successful");
         }
 
         // PUT api/<ReportController>/5

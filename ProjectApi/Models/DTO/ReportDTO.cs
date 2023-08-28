@@ -15,6 +15,12 @@ namespace ProjectApi.Models.DTO
         public string Location { get; set; } = null!;
     }
 
+    public class CreateReportImage
+    {
+        public string ImageName { get; set; } = null!;
+        public string ImageUrl { get; set; } = null!;
+    }
+
     public class ManipulateReportDTO
     {
         public int CategoryId { get; set; }
@@ -24,7 +30,10 @@ namespace ProjectApi.Models.DTO
         public string Location { get; set; } = null!;
     }
 
-    public class CreateReportDTO : ManipulateReportDTO { }
+    public class CreateReportDTO : ManipulateReportDTO
+    {
+        public CreateReportImage Image { get; set; } = new CreateReportImage();
+    }
 
     public class UpdateReportDTO : ManipulateReportDTO { }
 }
